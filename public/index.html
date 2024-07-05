@@ -1,22 +1,180 @@
-<!doctype html>
+
+<!DOCTYPE html>
 <html lang="en">
- <head>
+<head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>REELS/VIDEO DOWNLOADER</title>
-  <link href="style.css" rel="stylesheet" type="text/css" />
- </head>
- <body>
-  <div class="container">
-   <h1>REELS/VIDEO DOWNLOADER</h1>
-   <div class="input-container">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-image: url('https://i.ibb.co/7VXgdPz/1719994869690.jpg');
+      background-size: cover;
+      background-position: center;
+      color: #ffffff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 90%;
+      width: 400px;
+      padding: 20px;
+      background: rgba(0, 0, 0, 0.5);
+      border-radius: 20px;
+      position: relative;
+      text-align: center;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .container h1 {
+      margin-bottom: 20px;
+      color: #00ffff;
+    }
+
+    .input-container {
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: center;
+    }
+
+    input[type="text"] {
+      width: calc(100% - 24px);
+      max-width: 360px;
+      padding: 12px;
+      border: 2px solid #00ffff;
+      border-radius: 25px;
+      font-size: 16px;
+      box-sizing: border-box;
+      background-color: #080808;
+      color: #ffffff;
+      outline: none;
+      text-shadow: 0 0 10px #00ffff;
+      box-shadow: 0 0 10px #00ffff;
+    }
+
+    input[type="text"]:focus {
+      border-color: #00ffff;
+    }
+
+    button {
+      margin-top: 20px;
+      margin-bottom: 20px;
+      padding: 12px 40px;
+      border: none;
+      border-radius: 25px;
+      background-color: #00ffff;
+      color: #080808;
+      font-size: 16px;
+      cursor: pointer;
+      outline: none;
+      position: relative;
+      overflow: hidden;
+      transition: background-color 0.3s ease;
+      text-shadow: 0 0 10px #080808;
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+    }
+
+    button::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 300px;
+      height: 300px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      transition: width 0.4s ease, height 0.4s ease;
+      z-index: 0;
+      transform: translate(-50%, -50%);
+    }
+
+    button:hover::before {
+      width: 0;
+      height: 0;
+    }
+
+    button span {
+      position: relative;
+      z-index: 1;
+    }
+
+    button:hover {
+      background-color: #00cccc;
+    }
+
+    #message {
+      color: #ff3300;
+      margin-top: 20px;
+    }
+
+    .text-under-button {
+       height: 25px;
+      background-color: #FFFFFF;
+      margin-top: 20px;
+      color: #080808;
+      border-color: #00ffff;
+      background: rgba(255, 255, 255, 0.1);
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>REELS/VIDEO DOWNLOADER</h1>
+  <div class="input-container">
     <input type="text" id="videoUrl" placeholder="[ REELS/VIDEO URL ]">
-   </div><button onclick="downloadVideo()"><span>DOWNLOAD</span></button>
-   <div id="message"></div>
-   <div class="text-under-button">
-    POWERED BY AriesOliver
-   </div>
-   <script src="script.js"></script>
   </div>
- </body>
-  </html>
+  <button onclick="downloadVideo()"><span>DOWNLOAD</span></button>
+  <div id="message"></div>
+  <div class="text-under-button">
+     © 2024 AriesOliver. All rights reserved.
+  </div>
+</div>
+
+<script>
+  async function downloadVideo() {
+    const videoUrl = document.getElementById('videoUrl').value.trim();
+    const messageDiv = document.getElementById('message');
+
+    if (!videoUrl) {
+      messageDiv.innerText = 'PLEASE PROVIDE THE FACEBOOK URL TO PROCEED';
+      return;
+    }
+
+    messageDiv.innerText = 'PLEASE WAIT THE VIDEO IS DOWNLOADING [ CHECK THE DOWNLOADS WHEN ITS DONE ]';
+
+    try {
+      const response = await fetch(`https://hoanghao.me/api/facebook/download?url=${encodeURIComponent(videoUrl)}`);
+      const { data } = await response.json();
+
+      if (!data || !data.video || !data.title) {
+        throw new Error('Invalid response from the server. Contact Aries Oliver.');
+      }
+
+      const { video, title } = data;
+      const randomString = Math.random().toString(36).substring(7);
+      const videoResponse = await fetch(video);
+      const videoBlob = await videoResponse.blob();
+      const blobUrl = window.URL.createObjectURL(videoBlob);
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = `${title}_${randomString}.mp4`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+      messageDiv.innerText = 'DOWNLOAD COMPLETE';
+    } catch (error) {
+      messageDiv.innerText = `Error downloading the video: ${error}`;
+      console.error(error);
+    }
+  }
+</script>
+</body>
+   </html>
+ 
